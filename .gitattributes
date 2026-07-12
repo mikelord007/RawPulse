@@ -1,0 +1,17 @@
+# Normalize text files, but keep platform-specific scripts correct.
+* text=auto
+
+# The Unix Gradle wrapper must use LF or it won't run on macOS/Linux.
+gradlew text eol=lf
+
+# Windows scripts use CRLF.
+*.bat text eol=crlf
+
+# Binary files — never touch line endings.
+*.jar binary
+*.apk binary
+*.aar binary
+*.png binary
+*.webp binary
+*.keystore binary
+*.jks binary
