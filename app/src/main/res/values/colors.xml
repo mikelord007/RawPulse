@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="widget_bg">#12141A</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#9AA0A6</color>
+    <color name="accent">#4FC3F7</color>
+
+    <!-- Heart-rate zone colours (0 rest .. 5 max) -->
+    <color name="zone0">#78909C</color>
+    <color name="zone1">#4FC3F7</color>
+    <color name="zone2">#4CAF50</color>
+    <color name="zone3">#FFC107</color>
+    <color name="zone4">#FF9800</color>
+    <color name="zone5">#F44336</color>
+
+    <color name="ic_launcher_bg">#12141A</color>
+</resources>

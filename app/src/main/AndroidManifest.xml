@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Bluetooth LE: we scan for the WHOOP's Heart Rate broadcast and connect to it.
+         neverForLocation tells Android we are not using BLE to derive physical location,
+         so no location permission is required. -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Persistent connection while streaming HR -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+
+    <!-- Ongoing notification for the foreground service (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_le"
+        android:required="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PulseTile">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.HrService"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice" />
+
+        <!-- Widgets -->
+        <receiver
+            android:name=".widget.HrWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_hr_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/hr_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.HrvWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_hrv_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/hrv_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.SessionWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_session_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/session_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.ZoneWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_zone_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/zone_widget_info" />
+        </receiver>
+
+    </application>
+
+</manifest>
