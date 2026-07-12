@@ -45,5 +45,9 @@ data class MetricsSnapshot(
     val zone: Int = 0,
     val pctMax: Int? = null,
     val stale: Boolean = true,
-    val maxHr: Int = 190
+    val maxHr: Int = 190,
+    /** Recent BPM values, oldest → newest, for the trend sparkline. */
+    val bpmSeries: List<Int> = emptyList(),
+    /** Recent HRV (RMSSD ms) values, oldest → newest, for the HRV sparkline. */
+    val hrvSeries: List<Int> = emptyList()
 )

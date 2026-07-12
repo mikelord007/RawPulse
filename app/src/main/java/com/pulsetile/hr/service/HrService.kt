@@ -181,7 +181,7 @@ class HrService : Service(), WhoopHrManager.Listener {
         val text = snap.hrvMs?.let { "HRV $it ms" } ?: "Streaming heart rate"
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_heart)
+            .setSmallIcon(R.drawable.ic_pulse)
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(openIntent)

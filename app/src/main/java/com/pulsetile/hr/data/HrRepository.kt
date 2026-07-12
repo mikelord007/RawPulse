@@ -26,6 +26,10 @@ object HrRepository {
     // Rolling window of (timestamp, rrMs) for live HRV.
     private val rrWindow = ArrayDeque<Pair<Long, Int>>()
 
+    // Rolling history of recent samples for the trend sparklines.
+    private data class Sample(val ts: Long, val bpm: Int, val hrv: Int?)
+    private val history = ArrayDeque<Sample>()
+
     private val _flow = MutableStateFlow(MetricsSnapshot())
     val flow: StateFlow<MetricsSnapshot> get() = _flow
 
@@ -56,6 +60,7 @@ object HrRepository {
             minBpm = Int.MAX_VALUE
             maxBpmSeen = 0
             rrWindow.clear()
+            history.clear()
         }
         publish()
     }
@@ -76,6 +81,14 @@ object HrRepository {
             val cutoff = reading.timestampMs - HRV_WINDOW_MS
             while (rrWindow.isNotEmpty() && rrWindow.first().first < cutoff) {
                 rrWindow.removeFirst()
+            }
+
+            // Append to the trend history (current HRV alongside this BPM).
+            val hrvNow = Metrics.rmssd(rrWindow.map { it.second })
+            history.addLast(Sample(reading.timestampMs, reading.bpm, hrvNow))
+            val seriesCutoff = reading.timestampMs - SERIES_WINDOW_MS
+            while (history.isNotEmpty() && history.first().ts < seriesCutoff) {
+                history.removeFirst()
             }
         }
         publish()
@@ -109,10 +122,13 @@ object HrRepository {
             zone = zone,
             pctMax = pctMax,
             stale = stale,
-            maxHr = maxHr
+            maxHr = maxHr,
+            bpmSeries = history.map { it.bpm },
+            hrvSeries = history.mapNotNull { it.hrv }
         )
     }
 
     private const val HRV_WINDOW_MS = 60_000L
     private const val STALE_MS = 8_000L
+    private const val SERIES_WINDOW_MS = 90_000L
 }

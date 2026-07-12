@@ -8,6 +8,7 @@ import com.pulsetile.hr.data.HrRepository
 /**
  * Pushes the current [HrRepository] snapshot to every placed PulseTile widget.
  * Called by the foreground service on each new heart-rate reading (~1/sec).
+ * Builds per-id so each instance gets its correct square size.
  */
 object WidgetUpdater {
 
@@ -22,10 +23,9 @@ object WidgetUpdater {
         )
         for (provider in providers) {
             val ids = manager.getAppWidgetIds(ComponentName(context, provider.javaClass))
-            if (ids.isEmpty()) continue
-            val views = provider.buildViews(context, snap)
             for (id in ids) {
-                manager.updateAppWidget(id, views)
+                val sideDp = BaseHrWidgetProvider.squareSideDp(manager, id)
+                manager.updateAppWidget(id, provider.buildViews(context, snap, sideDp))
             }
         }
     }

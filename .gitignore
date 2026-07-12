@@ -37,3 +37,6 @@ captures/
 
 # Keep the Gradle wrapper jar (committed on purpose so ./gradlew works out of the box)
 !gradle/wrapper/gradle-wrapper.jar
+
+# Claude Code local working dirs (worktrees, scratch) — never commit
+.claude/

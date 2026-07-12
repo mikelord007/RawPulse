@@ -7,12 +7,16 @@ import androidx.core.content.ContextCompat
 import com.pulsetile.hr.R
 import com.pulsetile.hr.data.MetricsSnapshot
 
-/** Heart-rate zone widget: % of max HR, coloured by zone with a progress bar. */
+/** Heart-rate zone widget: % of max HR over a trend graph, coloured by zone. */
 class ZoneWidgetProvider : BaseHrWidgetProvider() {
 
-    override fun buildViews(context: Context, snap: MetricsSnapshot): RemoteViews {
+    override fun buildViews(context: Context, snap: MetricsSnapshot, sideDp: Int): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_zone)
+        applySquare(views, sideDp)
+
         val color = ContextCompat.getColor(context, WidgetStyle.zoneColorRes(snap.zone))
+        val pctSeries = snap.bpmSeries.map { it * 100 / snap.maxHr }
+        setGraph(context, views, sideDp, pctSeries, color)
 
         views.setTextViewText(R.id.value, snap.pctMax?.toString() ?: context.getString(R.string.dash))
         views.setTextColor(R.id.value, color)
