@@ -4,6 +4,19 @@
     <color name="text_primary">#FFFFFFFF</color>
     <color name="text_secondary">#9AA0A6</color>
     <color name="accent">#4FC3F7</color>
+    <color name="warning">#FFD54F</color>
+
+    <!-- App-screen palette (RawPulse icon colours). Kept separate from the widget
+         tokens above so restyling the activity never changes how the widgets render. -->
+    <color name="app_bg">#0A0A0A</color>
+    <color name="app_surface">#151212</color>
+    <color name="app_accent">#FF3B30</color>
+    <color name="app_accent_soft">#26FF3B30</color>
+    <color name="app_on_accent">#14060A</color>
+    <!-- Deeper, calmer red for the large filled CTA so it isn't glaring. -->
+    <color name="app_btn">#B5322A</color>
+    <color name="app_text">#F6F4F3</color>
+    <color name="app_muted">#8F8886</color>
 
     <!-- Heart-rate zone colours (0 rest .. 5 max) -->
     <color name="zone0">#78909C</color>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">PulseTile</string>
+    <string name="app_name">RawPulse</string>
 
     <string name="widget_hr_label">Live Heart Rate</string>
     <string name="widget_hrv_label">Live HRV</string>
@@ -8,6 +8,9 @@
     <string name="widget_zone_label">HR Zone</string>
 
     <string name="bpm">BPM</string>
+    <string name="heart_rate_label">Heart rate</string>
+    <string name="demo_mode_sub">Simulated heart rate</string>
+    <string name="age_sub">For HR zones</string>
     <string name="hrv_label">HRV (ms)</string>
     <string name="pct_max" formatted="false">% MAX</string>
     <string name="dash">--</string>
@@ -20,10 +23,35 @@
     <string name="status_scanning">Searching for your WHOOP…</string>
     <string name="status_connecting">Connecting…</string>
     <string name="status_connected">Live</string>
-    <string name="demo_mode">Demo mode (simulated heart rate)</string>
-    <string name="age_label">Age (for HR zones)</string>
+    <string name="status_demo">Demo</string>
+    <string name="demo_mode">Demo mode</string>
+    <string name="age_label">Age</string>
     <string name="instructions_title">Before you start</string>
-    <string name="instructions_body">1. In the WHOOP app, open your device settings and turn on \"Heart Rate Broadcast\".\n2. Grant Bluetooth and notification permissions when asked.\n3. Tap \"Start streaming\", then add the PulseTile widgets to your home screen (long-press home screen → Widgets → PulseTile).\n\nNote: while PulseTile is connected, your WHOOP can’t also broadcast to another device (Peloton, Zwift, etc.) at the same time.</string>
+    <string name="instructions_body">1. In the WHOOP app, open your device settings and turn on \"Heart Rate Broadcast\".\n2. Grant Bluetooth and notification permissions when asked.\n3. Tap \"Start streaming\", then add the RawPulse widgets to your home screen (long-press home screen → Widgets → RawPulse).\n\nNote: while RawPulse is connected, your WHOOP can’t also broadcast to another device (Peloton, Zwift, etc.) at the same time.</string>
     <string name="not_affiliated">Unofficial. Not affiliated with or endorsed by WHOOP.</string>
+    <string name="hrv_disclaimer_title">About live HRV</string>
+    <string name="hrv_disclaimer_body">The HRV shown here is a live RMSSD measured from your WHOOP\'s beat-to-beat data over the last minute, so it moves with your breathing and activity in real time. The WHOOP app instead reports a single HRV measured during deep sleep and averaged across the night. Different windows, different methods — the numbers will not match, and that\'s expected. Use this for live trends, not as a replacement for WHOOP\'s recovery figure.</string>
     <string name="perm_needed">Bluetooth permission is required to read your WHOOP heart-rate broadcast.</string>
+
+    <!-- Info dialog -->
+    <string name="info_button_desc">About RawPulse and its widgets</string>
+    <string name="info_title">About RawPulse</string>
+    <string name="info_widgets_header">The widgets</string>
+
+    <string name="info_hr_title">Live Heart Rate</string>
+    <string name="info_hr_body">Your heart rate straight off your WHOOP, updating beat by beat. The number you can glance at mid-workout without opening a single app.</string>
+
+    <string name="info_hrv_title">Live HRV</string>
+    <string name="info_hrv_body">Heart-rate variability (RMSSD), measured live from your beat-to-beat data over the last minute. It rises when you\'re calm and settles under strain — a real-time window the WHOOP app only shows you after you sleep.</string>
+
+    <string name="info_zone_title">HR Zone</string>
+    <string name="info_zone_body">How hard you\'re working, as a percentage of your max heart rate. Colour-coded from rest to all-out (zones 0–5), so one glance tells you whether you\'re cruising or redlining.</string>
+
+    <string name="info_session_title">HR Session</string>
+    <string name="info_session_body">A running summary of your current session — lowest, average and highest heart rate, plus elapsed time. The whole workout\'s story in one tile.</string>
+
+    <string name="info_about_header">About the developer</string>
+    <string name="info_about_body">I built RawPulse solo — no company, no team, just me making an app I use every day.\n\nThere\'s no dashboard, no data collection, no tracking. Your heart rate stays on your device, not on some server.\n\nFound a bug or want a feature? Reach out, I read every message myself.\n\n📧 <a href="mailto:manujasan23@gmail.com">manujasan23@gmail.com</a>\n𝕏 <a href="https://x.com/topagentmike007">@topagentmike007</a>\n\n— Manu</string>
+
+    <string name="info_close">Got it</string>
 </resources>

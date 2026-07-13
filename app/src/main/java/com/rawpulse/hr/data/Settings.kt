@@ -1,4 +1,4 @@
-package com.pulsetile.hr.data
+package com.rawpulse.hr.data
 
 import android.content.Context
 
@@ -9,7 +9,7 @@ import android.content.Context
 class Settings(context: Context) {
 
     private val prefs = context.applicationContext
-        .getSharedPreferences("pulsetile", Context.MODE_PRIVATE)
+        .getSharedPreferences("rawpulse", Context.MODE_PRIVATE)
 
     var age: Int
         get() = prefs.getInt(KEY_AGE, DEFAULT_AGE)

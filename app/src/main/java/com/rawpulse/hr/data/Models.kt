@@ -1,4 +1,4 @@
-package com.pulsetile.hr.data
+package com.rawpulse.hr.data
 
 /** Connection state of the BLE link to the WHOOP heart-rate broadcast. */
 enum class ConnectionState {
@@ -50,4 +50,12 @@ data class MetricsSnapshot(
     val bpmSeries: List<Int> = emptyList(),
     /** Recent HRV (RMSSD ms) values, oldest → newest, for the HRV sparkline. */
     val hrvSeries: List<Int> = emptyList()
-)
+) {
+    /**
+     * True only when we're connected AND the latest reading is fresh. This is the single
+     * gate for showing a live number: when the link drops or the band goes silent, this
+     * flips false so the UI shows "--" instead of a frozen value.
+     */
+    val hasLiveReading: Boolean
+        get() = state == ConnectionState.CONNECTED && !stale
+}

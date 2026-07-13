@@ -1,4 +1,4 @@
-package com.pulsetile.hr.service
+package com.rawpulse.hr.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -9,17 +9,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
-import com.pulsetile.hr.MainActivity
-import com.pulsetile.hr.R
-import com.pulsetile.hr.ble.WhoopHrManager
-import com.pulsetile.hr.data.ConnectionState
-import com.pulsetile.hr.data.HrReading
-import com.pulsetile.hr.data.HrRepository
-import com.pulsetile.hr.data.MetricsSnapshot
-import com.pulsetile.hr.data.Settings
-import com.pulsetile.hr.widget.WidgetUpdater
+import com.rawpulse.hr.MainActivity
+import com.rawpulse.hr.R
+import com.rawpulse.hr.ble.WhoopHrManager
+import com.rawpulse.hr.data.ConnectionState
+import com.rawpulse.hr.data.HrReading
+import com.rawpulse.hr.data.HrRepository
+import com.rawpulse.hr.data.Settings
+import com.rawpulse.hr.widget.WidgetUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -45,7 +45,9 @@ class HrService : Service(), WhoopHrManager.Listener {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var demoJob: Job? = null
+    private var heartbeatJob: Job? = null
     private var running = false
+    private var currentDemo = false
 
     override fun onCreate() {
         super.onCreate()
@@ -68,16 +70,33 @@ class HrService : Service(), WhoopHrManager.Listener {
     }
 
     private fun startStreaming() {
-        if (running) return
+        val demo = settings.demoMode
+        // Already streaming: only act if the demo/live mode actually changed, in which
+        // case switch the data source live without tearing down the foreground service.
+        // This is what makes the demo toggle work while streaming.
+        if (running && demo == currentDemo) return
+
+        if (!startForegroundInternal()) {
+            running = false
+            stopSelf()
+            return
+        }
         running = true
+        currentDemo = demo
 
         HrRepository.setMaxHr(settings.effectiveMaxHr())
         HrRepository.resetSession()
-        val demo = settings.demoMode
         HrRepository.setDemo(demo)
 
-        startForegroundInternal()
+        startSource(demo)
+        startHeartbeat()
+    }
 
+    /** (Re)starts the active data source, cancelling whichever one was running before. */
+    private fun startSource(demo: Boolean) {
+        demoJob?.cancel()
+        demoJob = null
+        manager.stop()
         if (demo) {
             startDemo()
         } else {
@@ -85,24 +104,58 @@ class HrService : Service(), WhoopHrManager.Listener {
         }
     }
 
+    /**
+     * Periodically re-publishes so staleness is re-evaluated over time. Without this, a
+     * band that stops broadcasting (out of range, dead battery) leaves the last number
+     * frozen on screen until Android eventually reports the BLE disconnect.
+     */
+    private fun startHeartbeat() {
+        if (heartbeatJob != null) return
+        heartbeatJob = scope.launch {
+            while (isActive) {
+                delay(HEARTBEAT_MS)
+                HrRepository.refresh()
+                WidgetUpdater.updateAll(this@HrService)
+            }
+        }
+    }
+
     private fun stopStreaming() {
         running = false
+        heartbeatJob?.cancel()
+        heartbeatJob = null
         demoJob?.cancel()
         demoJob = null
         manager.stop()
         HrRepository.setState(ConnectionState.DISCONNECTED)
+        // Clear the last reading and session stats so every widget falls back to its
+        // empty state ("--") instead of freezing on the final values.
+        HrRepository.resetSession()
         WidgetUpdater.updateAll(this)
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
     }
 
-    private fun startForegroundInternal() {
-        val notification = buildNotification(HrRepository.current())
-        ServiceCompat.startForeground(
-            this,
-            NOTIF_ID,
-            notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
-        )
+    private fun startForegroundInternal(): Boolean {
+        val notification = buildNotification()
+        return try {
+            ServiceCompat.startForeground(
+                this,
+                NOTIF_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
+            )
+            true
+        } catch (e: SecurityException) {
+            // The connectedDevice FGS type needs BLUETOOTH_CONNECT at call time; if the
+            // permission was revoked before a sticky restart, bail out instead of crash-looping.
+            Log.w(TAG, "startForeground rejected (permission revoked?)", e)
+            false
+        } catch (e: IllegalStateException) {
+            // Covers ForegroundServiceStartNotAllowedException: the OS restarted us at a
+            // moment it won't allow a foreground promotion.
+            Log.w(TAG, "startForeground not allowed right now", e)
+            false
+        }
     }
 
     // ---- Demo mode: synthetic HR so the pipeline can be verified without a band ----
@@ -137,8 +190,9 @@ class HrService : Service(), WhoopHrManager.Listener {
     }
 
     private fun pushUpdates() {
-        val snap = HrRepository.current()
-        notificationManager.notify(NOTIF_ID, buildNotification(snap))
+        // The notification is intentionally static (see buildNotification): Android requires
+        // a foreground-service notification to keep the ~1/sec widget updates alive, but we
+        // don't stream live BPM/HRV into it. So each reading only refreshes the widgets.
         WidgetUpdater.updateAll(this)
     }
 
@@ -147,16 +201,24 @@ class HrService : Service(), WhoopHrManager.Listener {
     private fun createChannel() {
         val channel = NotificationChannel(
             CHANNEL_ID,
-            "Heart-rate streaming",
-            NotificationManager.IMPORTANCE_LOW
+            "Streaming",
+            // MIN keeps it silent, out of the status bar, and collapsed in the shade —
+            // the least intrusive form Android allows for a required foreground service.
+            NotificationManager.IMPORTANCE_MIN
         ).apply {
-            description = "Ongoing while PulseTile streams your WHOOP heart rate"
+            description = "Required while RawPulse streams to your widgets"
             setShowBadge(false)
         }
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(snap: MetricsSnapshot): Notification {
+    /**
+     * A deliberately static, minimal notification. Android requires an ongoing
+     * notification for a foreground service, and the foreground service is what lets us
+     * refresh the widgets ~1/sec (the OS widget refresh floor is 30 minutes). We keep it
+     * quiet and free of live metrics so it isn't a second, distracting readout.
+     */
+    private fun buildNotification(): Notification {
         val openIntent = PendingIntent.getActivity(
             this,
             0,
@@ -170,30 +232,22 @@ class HrService : Service(), WhoopHrManager.Listener {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val title = when {
-            snap.demo && snap.bpm != null -> "${snap.bpm} BPM (demo)"
-            snap.state == ConnectionState.CONNECTED && !snap.stale && snap.bpm != null -> "${snap.bpm} BPM"
-            snap.state == ConnectionState.CONNECTED -> "Connected"
-            snap.state == ConnectionState.SCANNING -> "Searching for your WHOOP…"
-            snap.state == ConnectionState.CONNECTING -> "Connecting…"
-            else -> "Not streaming"
-        }
-        val text = snap.hrvMs?.let { "HRV $it ms" } ?: "Streaming heart rate"
-
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_pulse)
-            .setContentTitle(title)
-            .setContentText(text)
+            .setContentTitle("RawPulse")
+            .setContentText("Streaming to your widgets")
             .setContentIntent(openIntent)
             .addAction(0, "Stop", stopIntent)
             .setOngoing(true)
-            .setOnlyAlertOnce(true)
+            .setSilent(true)
+            .setShowWhen(false)
             .setCategory(Notification.CATEGORY_SERVICE)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
     }
 
     override fun onDestroy() {
+        heartbeatJob?.cancel()
         demoJob?.cancel()
         manager.stop()
         scope.cancel()
@@ -203,10 +257,12 @@ class HrService : Service(), WhoopHrManager.Listener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     companion object {
-        const val ACTION_START = "com.pulsetile.hr.START"
-        const val ACTION_STOP = "com.pulsetile.hr.STOP"
+        private const val TAG = "HrService"
+        const val ACTION_START = "com.rawpulse.hr.START"
+        const val ACTION_STOP = "com.rawpulse.hr.STOP"
         private const val CHANNEL_ID = "hr_streaming"
         private const val NOTIF_ID = 1001
+        private const val HEARTBEAT_MS = 3000L
 
         fun start(context: Context) {
             val intent = Intent(context, HrService::class.java).setAction(ACTION_START)

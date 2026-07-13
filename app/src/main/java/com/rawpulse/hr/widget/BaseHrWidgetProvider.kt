@@ -1,4 +1,4 @@
-package com.pulsetile.hr.widget
+package com.rawpulse.hr.widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -8,13 +8,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.TypedValue
 import android.widget.RemoteViews
-import com.pulsetile.hr.MainActivity
-import com.pulsetile.hr.R
-import com.pulsetile.hr.data.HrRepository
-import com.pulsetile.hr.data.MetricsSnapshot
+import com.rawpulse.hr.MainActivity
+import com.rawpulse.hr.R
+import com.rawpulse.hr.data.HrRepository
+import com.rawpulse.hr.data.MetricsSnapshot
 
 /**
- * Base class for all PulseTile widgets. Live updates are pushed by the foreground
+ * Base class for all RawPulse widgets. Live updates are pushed by the foreground
  * service via [WidgetUpdater]; onUpdate/onAppWidgetOptionsChanged cover placement,
  * resize and system refreshes.
  *
@@ -26,6 +26,9 @@ abstract class BaseHrWidgetProvider : AppWidgetProvider() {
 
     /** Build the RemoteViews for one instance. [sideDp] is the square card side. */
     abstract fun buildViews(context: Context, snap: MetricsSnapshot, sideDp: Int): RemoteViews
+
+    /** True for 1x1-ish placements where there is no room for a graph or secondary labels. */
+    protected fun isCompact(sideDp: Int): Boolean = sideDp < COMPACT_SIDE_DP
 
     override fun onUpdate(context: Context, mgr: AppWidgetManager, ids: IntArray) {
         val snap = HrRepository.current()
@@ -83,8 +86,11 @@ abstract class BaseHrWidgetProvider : AppWidgetProvider() {
 
     companion object {
         private const val DEFAULT_SIDE_DP = 110
-        private const val MIN_SIDE_DP = 80
+        private const val MIN_SIDE_DP = 40
         private const val MAX_SIDE_DP = 320
+
+        /** Below this card side (dp) we treat the widget as a 1x1 tile. */
+        private const val COMPACT_SIDE_DP = 120
         private const val MAX_BITMAP_PX = 384
         private const val CARD_CORNER_DP = 28f
 

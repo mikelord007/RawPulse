@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.pulsetile.hr"
+    namespace = "com.rawpulse.hr"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.pulsetile.hr"
+        applicationId = "com.rawpulse.hr"
         minSdk = 31
         targetSdk = 35
         versionCode = 1

@@ -1,12 +1,12 @@
-# PulseTile — Overview
+# RawPulse — Overview
 
 **Live WHOOP heart rate on your Android home screen.**
 
-An unofficial native Android app (package `com.pulsetile.hr`) whose home-screen widgets show your **live heart rate, updating ~once per second** — something the official WHOOP app doesn't offer. It also derives live metrics WHOOP hides in real time, including **live HRV (RMSSD)**.
+An unofficial native Android app (package `com.rawpulse.hr`) whose home-screen widgets show your **live heart rate, updating ~once per second** — something the official WHOOP app doesn't offer. It also derives live metrics WHOOP hides in real time, including **live HRV (RMSSD)**.
 
 ## How it works
 - Reads the standard Bluetooth **Heart Rate broadcast** (`0x180D` / char `0x2A37`) that a WHOOP 4.0 / 5.0 emits — the same signal Peloton, Zwift and Garmin read.
-- **No login, no WHOOP cloud, no per-user setup.** If you can enable HR Broadcast in the WHOOP app, PulseTile works.
+- **No login, no WHOOP cloud, no per-user setup.** If you can enable HR Broadcast in the WHOOP app, RawPulse works.
 - A **foreground service** holds the BLE connection and pushes each reading to the widgets (Android's native widget refresh caps at 30 min, so real-time updates must be pushed). A persistent notification shows current BPM + a Stop button.
 
 ## Widgets (square home-screen tiles)

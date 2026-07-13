@@ -44,6 +44,10 @@
                 android:textColor="@color/text_primary"
                 android:textSize="52sp"
                 android:textStyle="bold"
+                android:shadowColor="#CC000000"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="12"
                 android:includeFontPadding="false" />
 
             <TextView

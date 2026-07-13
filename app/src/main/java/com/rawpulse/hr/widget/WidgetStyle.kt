@@ -1,8 +1,8 @@
-package com.pulsetile.hr.widget
+package com.rawpulse.hr.widget
 
-import com.pulsetile.hr.R
-import com.pulsetile.hr.data.ConnectionState
-import com.pulsetile.hr.data.MetricsSnapshot
+import com.rawpulse.hr.R
+import com.rawpulse.hr.data.ConnectionState
+import com.rawpulse.hr.data.MetricsSnapshot
 
 /** Shared formatting / colour helpers for the widgets. */
 object WidgetStyle {

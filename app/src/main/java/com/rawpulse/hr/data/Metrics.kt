@@ -1,4 +1,4 @@
-package com.pulsetile.hr.data
+package com.rawpulse.hr.data
 
 import kotlin.math.sqrt
 

@@ -1,6 +1,6 @@
-# PulseTile — Live WHOOP heart rate on your Android home screen
+# RawPulse — Live WHOOP heart rate on your Android home screen
 
-PulseTile is a tiny Android app that shows your **live heart rate on a home‑screen
+RawPulse is a tiny Android app that shows your **live heart rate on a home‑screen
 widget, updating about once per second** — something the official WHOOP app does not
 offer. It also derives extra live metrics that WHOOP doesn't show in real time,
 including **live HRV**.
@@ -8,7 +8,7 @@ including **live HRV**.
 It works by reading the standard Bluetooth **Heart Rate broadcast** that a
 WHOOP 4.0 / 5.0 band emits (the same signal Peloton, Zwift and Garmin read). Nothing
 goes through WHOOP's servers, there is no login, and there is **no per‑user setup** —
-if you can turn on HR Broadcast in the WHOOP app, PulseTile works.
+if you can turn on HR Broadcast in the WHOOP app, RawPulse works.
 
 > **Unofficial.** Not affiliated with, or endorsed by, WHOOP. "WHOOP" is a trademark
 > of its respective owner and is used here only to describe compatibility.
@@ -20,7 +20,7 @@ if you can turn on HR Broadcast in the WHOOP app, PulseTile works.
 The official WHOOP Developer API is **cycle‑based** (recovery, strain, sleep) and does
 **not** expose real‑time or continuous heart rate. Per‑second HR is only available
 locally, over Bluetooth, via the band's standard **Heart Rate Service** (`0x180D`,
-characteristic `0x2A37`). PulseTile subscribes to that stream directly.
+characteristic `0x2A37`). RawPulse subscribes to that stream directly.
 
 ---
 
@@ -51,7 +51,7 @@ Heart‑rate zones are derived from your max HR (estimated as `220 − age`, edi
 
 Trade‑offs to know:
 
-- **One receiver at a time.** While PulseTile is connected, your WHOOP can't also
+- **One receiver at a time.** While RawPulse is connected, your WHOOP can't also
   broadcast to another device (Peloton, Zwift, a watch, etc.) simultaneously.
 - **Battery.** A persistent BLE connection plus ~1 Hz widget redraws uses noticeably
   more battery than an idle phone. Stop streaming from the notification when you're done.
@@ -136,10 +136,10 @@ tap it in Files, and allow "install from this source".
 
 ### 5. First run
 
-1. Open **PulseTile**, grant Bluetooth + notification permissions.
+1. Open **RawPulse**, grant Bluetooth + notification permissions.
 2. In the **WHOOP app**, enable **Heart Rate Broadcast**.
 3. Tap **Start streaming**. The BPM should appear within a few seconds.
-4. Long‑press the home screen → **Widgets** → **PulseTile** → drag the tiles you want.
+4. Long‑press the home screen → **Widgets** → **RawPulse** → drag the tiles you want.
 
 **Demo mode** (in the app) feeds a simulated heart rate so you can verify the widgets
 update without wearing the band.
@@ -152,7 +152,7 @@ update without wearing the band.
 ## Project layout
 
 ```
-app/src/main/java/com/pulsetile/hr/
+app/src/main/java/com/rawpulse/hr/
   ble/WhoopHrManager.kt      # BLE scan/connect + decode 0x2A37
   data/                      # HrRepository, Metrics (RMSSD), Settings, models
   service/HrService.kt       # foreground service, pushes widget updates + notification

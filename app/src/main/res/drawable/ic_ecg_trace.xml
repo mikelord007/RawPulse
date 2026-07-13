@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Faint ECG trace used as a backdrop inside the readout card. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="64dp"
+    android:viewportWidth="320"
+    android:viewportHeight="100">
+    <path
+        android:pathData="M4,60 H70 L82,60 L92,49 L102,60 L120,60 L134,17 L150,93 L164,42 L176,60 L196,60 L205,53 L214,60 L228,60 H316"
+        android:strokeColor="#FF3B30"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>

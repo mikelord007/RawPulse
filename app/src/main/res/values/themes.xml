@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.PulseTile" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="android:statusBarColor">@color/widget_bg</item>
+    <style name="Theme.RawPulse" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/app_bg</item>
+        <item name="android:windowBackground">@color/app_bg</item>
+        <item name="android:navigationBarColor">@color/app_bg</item>
+
+        <!-- Red-on-near-black identity: Material components (switch, text field,
+             cursor, focus rings) pick these up. -->
+        <item name="colorPrimary">@color/app_accent</item>
+        <item name="colorOnPrimary">@color/app_on_accent</item>
+        <item name="colorControlActivated">@color/app_accent</item>
+        <item name="colorSurface">@color/app_surface</item>
+        <item name="colorOnSurface">@color/app_text</item>
+        <item name="android:colorBackground">@color/app_bg</item>
     </style>
 </resources>

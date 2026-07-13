@@ -1,12 +1,12 @@
-package com.pulsetile.hr.widget
+package com.rawpulse.hr.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
-import com.pulsetile.hr.data.HrRepository
+import com.rawpulse.hr.data.HrRepository
 
 /**
- * Pushes the current [HrRepository] snapshot to every placed PulseTile widget.
+ * Pushes the current [HrRepository] snapshot to every placed RawPulse widget.
  * Called by the foreground service on each new heart-rate reading (~1/sec).
  * Builds per-id so each instance gets its correct square size.
  */

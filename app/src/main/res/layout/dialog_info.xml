@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Info dialog: what each widget is, plus a note from the developer. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/dialog_bg"
+    android:scrollbars="none"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_title"
+            android:textColor="@color/app_text"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02" />
+
+        <!-- Section: widgets -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_widgets_header"
+            android:textColor="@color/app_accent"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:textAllCaps="true"
+            android:letterSpacing="0.16"
+            android:layout_marginTop="20dp" />
+
+        <!-- Live Heart Rate -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_hr_title"
+            android:textColor="@color/app_text"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="14dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/info_hr_body"
+            android:textColor="@color/app_muted"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_marginTop="4dp" />
+
+        <!-- Live HRV -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_hrv_title"
+            android:textColor="@color/app_text"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/info_hrv_body"
+            android:textColor="@color/app_muted"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_marginTop="4dp" />
+
+        <!-- HR Zone -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_zone_title"
+            android:textColor="@color/app_text"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/info_zone_body"
+            android:textColor="@color/app_muted"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_marginTop="4dp" />
+
+        <!-- HR Session -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/info_session_title"
+            android:textColor="@color/app_text"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/info_session_body"
+            android:textColor="@color/app_muted"
+            android:textSize="14sp"
+            android:lineSpacingMultiplier="1.2"
+            android:layout_marginTop="4dp" />
+
+        <!-- Developer note -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/mark_tile_bg"
+            android:padding="16dp"
+            android:layout_marginTop="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/info_about_header"
+                android:textColor="@color/app_accent"
+                android:textSize="11sp"
+                android:fontFamily="monospace"
+                android:textAllCaps="true"
+                android:letterSpacing="0.16" />
+
+            <TextView
+                android:id="@+id/info_about_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/info_about_body"
+                android:textColor="@color/app_text"
+                android:textColorLink="@color/app_accent"
+                android:textSize="14sp"
+                android:lineSpacingMultiplier="1.35"
+                android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+
+        <!-- Close -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/info_close"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/info_close"
+            android:textColor="@color/app_accent"
+            android:textAllCaps="true"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.12"
+            android:textSize="13sp"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+
+</ScrollView>

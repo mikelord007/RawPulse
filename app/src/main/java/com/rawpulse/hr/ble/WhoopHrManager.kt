@@ -1,4 +1,4 @@
-package com.pulsetile.hr.ble
+package com.rawpulse.hr.ble
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
@@ -19,8 +19,8 @@ import android.os.Handler
 import android.os.Looper
 import android.os.ParcelUuid
 import android.util.Log
-import com.pulsetile.hr.data.ConnectionState
-import com.pulsetile.hr.data.HrReading
+import com.rawpulse.hr.data.ConnectionState
+import com.rawpulse.hr.data.HrReading
 import java.util.UUID
 
 /**
@@ -53,19 +53,35 @@ class WhoopHrManager(private val context: Context) {
     @Volatile private var desired = false
     @Volatile private var scanning = false
     @Volatile private var connecting = false
+    // Guards against stale BLE callbacks from a torn-down session. Once stop() runs, no
+    // further state/readings may leak out until the next start(); otherwise a late GATT
+    // disconnect callback can clobber a freshly-started source (e.g. flip demo back off).
+    @Volatile private var emitting = false
     private var preferredAddress: String? = null
+
+    // Search-session state, touched on the main thread only (scan callbacks and our
+    // handler both run there). A "search" spans from start()/a disconnect retry until
+    // a device is picked; the timestamp drives the WHOOP-first grace period.
+    private var lowLatency = true
+    private var searchStartMs = 0L
 
     fun start(preferredAddress: String?) {
         this.preferredAddress = preferredAddress
         desired = true
+        emitting = true
+        lowLatency = true
+        searchStartMs = 0L
         startScan()
     }
 
     fun stop() {
         desired = false
+        emitting = false
+        handler.removeCallbacks(scanMaintenance)
         stopScan()
         closeGatt()
-        emitState(ConnectionState.DISCONNECTED)
+        // Deliberately no emitState here: the caller owns the DISCONNECTED transition, and
+        // emitting=false already silences any in-flight callbacks from this session.
     }
 
     fun isRunning(): Boolean = desired
@@ -91,11 +107,24 @@ class WhoopHrManager(private val context: Context) {
             ScanFilter.Builder().setServiceUuid(ParcelUuid(HR_SERVICE)).build()
         )
         val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+            .setScanMode(
+                if (lowLatency) ScanSettings.SCAN_MODE_LOW_LATENCY
+                else ScanSettings.SCAN_MODE_BALANCED
+            )
             .build()
         try {
             s.startScan(filters, settings, scanCallback)
             scanning = true
+            if (searchStartMs == 0L) searchStartMs = System.currentTimeMillis()
+            // Downgrade to a battery-friendly mode once the initial burst finds nothing,
+            // then recycle the scan periodically: Android silently demotes any scan
+            // running longer than ~30 min to opportunistic mode, which would stop
+            // results from ever arriving.
+            handler.removeCallbacks(scanMaintenance)
+            handler.postDelayed(
+                scanMaintenance,
+                if (lowLatency) LOW_LATENCY_SCAN_MS else SCAN_RECYCLE_MS
+            )
             emitState(ConnectionState.SCANNING)
         } catch (e: SecurityException) {
             Log.w(TAG, "startScan missing permission", e)
@@ -103,8 +132,16 @@ class WhoopHrManager(private val context: Context) {
         }
     }
 
+    private val scanMaintenance = Runnable {
+        if (!desired || !scanning || connecting) return@Runnable
+        lowLatency = false
+        stopScan()
+        startScan()
+    }
+
     @SuppressLint("MissingPermission")
     private fun stopScan() {
+        handler.removeCallbacks(scanMaintenance)
         if (!scanning) return
         scanning = false
         try {
@@ -116,8 +153,9 @@ class WhoopHrManager(private val context: Context) {
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
+            if (!desired) return
             val device = result.device ?: return
-            val name = try {
+            val name = result.scanRecord?.deviceName ?: try {
                 device.name
             } catch (e: SecurityException) {
                 null
@@ -126,6 +164,15 @@ class WhoopHrManager(private val context: Context) {
             if (connecting) return
             val pref = preferredAddress
             if (pref != null && !pref.equals(device.address, ignoreCase = true)) return
+            // The scan filter matches ANY standard HR broadcaster — a Polar strap, a bike
+            // computer, a stranger's band at the gym. Hold out for a device that identifies
+            // as a WHOOP; only fall back to other broadcasters if none has appeared after
+            // a grace period (covers renamed/anonymous broadcasts and non-WHOOP users).
+            if (pref == null) {
+                val isWhoop = name?.contains("whoop", ignoreCase = true) == true
+                val waited = System.currentTimeMillis() - searchStartMs
+                if (!isWhoop && waited < WHOOP_ONLY_MS) return
+            }
             stopScan()
             connect(device)
         }
@@ -178,7 +225,13 @@ class WhoopHrManager(private val context: Context) {
                     closeGatt()
                     if (desired) {
                         emitState(ConnectionState.SCANNING)
-                        handler.postDelayed({ startScan() }, RETRY_MS)
+                        handler.postDelayed({
+                            // Fresh search session: full-rate scan again, and a new
+                            // WHOOP-first grace period.
+                            lowLatency = true
+                            searchStartMs = 0L
+                            startScan()
+                        }, RETRY_MS)
                     } else {
                         emitState(ConnectionState.DISCONNECTED)
                     }
@@ -246,18 +299,29 @@ class WhoopHrManager(private val context: Context) {
     }
 
     private fun handleValue(characteristic: BluetoothGattCharacteristic, value: ByteArray) {
+        if (!emitting) return
         if (characteristic.uuid != HR_MEASUREMENT) return
         val reading = parseHrMeasurement(value) ?: return
         listener?.onReading(reading)
     }
 
     private fun emitState(state: ConnectionState) {
-        handler.post { listener?.onState(state) }
+        if (!emitting) return
+        handler.post { if (emitting) listener?.onState(state) }
     }
 
     companion object {
         private const val TAG = "WhoopHrManager"
         private const val RETRY_MS = 2500L
+
+        /** How long to hold out for a WHOOP-named device before accepting any HR broadcaster. */
+        private const val WHOOP_ONLY_MS = 10_000L
+
+        /** Initial low-latency scan burst; after this the scan drops to BALANCED. */
+        private const val LOW_LATENCY_SCAN_MS = 3 * 60_000L
+
+        /** Restart the balanced scan on this period so it never hits Android's ~30-min demotion. */
+        private const val SCAN_RECYCLE_MS = 10 * 60_000L
 
         val HR_SERVICE: UUID = UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb")
         val HR_MEASUREMENT: UUID = UUID.fromString("00002a37-0000-1000-8000-00805f9b34fb")

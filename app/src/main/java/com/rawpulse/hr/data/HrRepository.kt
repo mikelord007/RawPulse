@@ -1,4 +1,4 @@
-package com.pulsetile.hr.data
+package com.rawpulse.hr.data
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -98,6 +98,13 @@ object HrRepository {
         _flow.value = buildSnapshot()
     }
 
+    /**
+     * Re-publishes the current snapshot so time-based fields (notably [MetricsSnapshot.stale])
+     * are recomputed against "now". The service calls this on a heartbeat, so a band that
+     * goes silent is detected even without an explicit disconnect callback.
+     */
+    fun refresh() = publish()
+
     private fun buildSnapshot(): MetricsSnapshot = synchronized(lock) {
         val now = System.currentTimeMillis()
         val last = lastReading
@@ -129,6 +136,6 @@ object HrRepository {
     }
 
     private const val HRV_WINDOW_MS = 60_000L
-    private const val STALE_MS = 8_000L
+    private const val STALE_MS = 6_000L
     private const val SERIES_WINDOW_MS = 90_000L
 }

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PulseTile"
+rootProject.name = "RawPulse"
 include(":app")

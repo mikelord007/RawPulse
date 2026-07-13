@@ -1,9 +1,9 @@
-package com.pulsetile.hr.widget
+package com.rawpulse.hr.widget
 
 import android.content.Context
 import android.widget.RemoteViews
-import com.pulsetile.hr.R
-import com.pulsetile.hr.data.MetricsSnapshot
+import com.rawpulse.hr.R
+import com.rawpulse.hr.data.MetricsSnapshot
 
 /** Session summary widget: min / avg / max BPM and elapsed time. Square, no graph. */
 class SessionWidgetProvider : BaseHrWidgetProvider() {
