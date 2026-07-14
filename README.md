@@ -68,6 +68,39 @@ Trade‑offs to know:
 
 ---
 
+## Install
+
+RawPulse isn't on the Play Store (see the license/rebuild note above about zero‑setup
+distribution) — install it directly:
+
+### Option A — Obtainium (recommended, gets you auto‑updates)
+
+[Obtainium](https://github.com/ImranR98/Obtainium) tracks an app's GitHub Releases and
+notifies you (with in‑place updates) whenever a new one is published — no Play Store
+needed.
+
+1. Install Obtainium (from its own [releases page](https://github.com/ImranR98/Obtainium/releases)
+   or F‑Droid).
+2. In Obtainium, tap **Add App** and paste this repo's URL:
+   `https://github.com/mikelord007/RawPulse`
+3. Obtainium will find the latest release's APK automatically. Install it, and future
+   releases will show up as updates in Obtainium.
+
+Every release APK is signed with the same dedicated RawPulse release key, so updates
+install cleanly in place without needing to uninstall first.
+
+### Option B — Download the APK directly
+
+Grab `app-release.apk` from the [latest GitHub release](https://github.com/mikelord007/RawPulse/releases/latest),
+transfer it to your phone, tap it in Files, and allow "install from this source." You'll
+need to repeat this manually for future versions (Obtainium does this part for you).
+
+### Option C — Build from source
+
+See [Build & install (command‑line)](#build--install-commandline-no-android-studio) below.
+
+---
+
 ## Build & install (command‑line, no Android Studio)
 
 You only need a JDK and the Android command‑line SDK tools — not the full IDE.

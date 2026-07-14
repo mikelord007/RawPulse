@@ -1,6 +1,16 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+// Release signing lives outside the repo (like local.properties/sdk.dir) so the
+// keystore and its passwords never get committed. Missing on a machine that only
+// needs debug builds, so release signing is configured only when it's present.
+val releaseKeystoreProps = Properties().apply {
+    val propsFile = file("C:/Users/manuj/android-dev/keys/rawpulse-keystore.properties")
+    if (propsFile.exists()) propsFile.inputStream().use { load(it) }
 }
 
 android {
@@ -11,18 +21,31 @@ android {
         applicationId = "com.rawpulse.hr"
         minSdk = 31
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.2"
+    }
+
+    signingConfigs {
+        if (releaseKeystoreProps.containsKey("storeFile")) {
+            create("release") {
+                storeFile = file(releaseKeystoreProps.getProperty("storeFile"))
+                storePassword = releaseKeystoreProps.getProperty("storePassword")
+                keyAlias = releaseKeystoreProps.getProperty("keyAlias")
+                keyPassword = releaseKeystoreProps.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
-            // No shrinking for the debug-signed hobby build; keeps things simple.
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (releaseKeystoreProps.containsKey("storeFile")) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
