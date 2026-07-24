@@ -203,6 +203,13 @@ app/src/main/java/com/rawpulse/hr/
 
 ---
 
+## Privacy
+
+RawPulse collects no data and has no servers — everything happens on your
+phone. See [PRIVACY.md](PRIVACY.md) for the full policy.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
