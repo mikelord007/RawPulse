@@ -206,7 +206,8 @@ app/src/main/java/com/rawpulse/hr/
 ## Privacy
 
 RawPulse collects no data and has no servers — everything happens on your
-phone. See [PRIVACY.md](PRIVACY.md) for the full policy.
+phone. See the [privacy policy](https://mikelord007.github.io/RawPulse/privacy/)
+(or [PRIVACY.md](PRIVACY.md) directly) for the full policy.
 
 ---
 

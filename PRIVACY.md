@@ -1,3 +1,7 @@
+---
+permalink: /privacy/
+---
+
 # Privacy Policy — RawPulse
 
 **Last updated: 2026-07-24**
